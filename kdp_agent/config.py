@@ -56,9 +56,12 @@ class GenerationConfig:
 @dataclass
 class ImageGenConfig:
     provider: str = "replicate"
+    fallback_provider: str = "together"
     replicate_model_space: str = "black-forest-labs/flux-1.1-pro"
     replicate_model_anime: str = "stability-ai/sdxl:39ed52f2319f9c703d0379b668aed8521d0e4b2a6893e06f21ee07a56b9ee64f"
-    together_model: str = "black-forest-labs/FLUX.1-schnell-Free"
+    together_model_space: str = "black-forest-labs/FLUX.1-schnell-Free"
+    together_model_anime: str = "black-forest-labs/FLUX.1-schnell-Free"
+    together_steps: int = 4
     ip_similarity_threshold: float = 0.75
     negative_prompts_baseline: str = (
         "known anime characters, naruto, goku, luffy, pikachu, existing IP, "

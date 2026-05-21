@@ -2,13 +2,11 @@
 
 from __future__ import annotations
 
-import asyncio
 import re
 import xml.etree.ElementTree as ET
 from pathlib import Path
 from typing import TYPE_CHECKING
 
-import httpx
 from PIL import Image, ImageDraw, ImageFont
 
 if TYPE_CHECKING:
@@ -56,12 +54,14 @@ async def generate_central_art(
     prompt: str,
     config: "KdpConfig",
     out_path: Path,
+    style: str = "space",
 ) -> Path:
     """
-    Call Replicate (or OpenAI DALL-E 3 if key configured) to generate
-    the central art image for the cover. Returns path to downloaded PNG.
+    Generate central cover art using the same provider stack as interior pages
+    (Replicate primary, Together.ai fallback — controlled via kdp-config.yaml).
+    Returns path to downloaded PNG.
     """
-    import replicate  # type: ignore
+    from kdp_agent.agents.content.image_gen import ImageGenerator
 
     negative = (
         "text, watermark, signature, blurry, low quality, "
@@ -72,28 +72,13 @@ async def generate_central_art(
         "vibrant colors, centered composition, square format, no text"
     )
 
-    model = config.image_gen.cover_model
-    input_payload: dict = {
-        "prompt": full_prompt,
-        "negative_prompt": negative,
-        "width": 1024,
-        "height": 1024,
-        "num_inference_steps": getattr(config.image_gen, "cover_steps", 30),
-        "guidance_scale": 7.5,
-    }
-
-    output = await asyncio.to_thread(
-        lambda: replicate.run(model, input=input_payload)
+    gen = ImageGenerator(config)
+    return await gen.generate(
+        prompt=full_prompt,
+        output_path=out_path,
+        negative_prompt=negative,
+        style=style,
     )
-
-    url = str(output[0]) if isinstance(output, list) else str(output)
-    async with httpx.AsyncClient(timeout=60) as client:
-        resp = await client.get(url)
-        resp.raise_for_status()
-
-    out_path.parent.mkdir(parents=True, exist_ok=True)
-    out_path.write_bytes(resp.content)
-    return out_path
 
 
 def _px(value_str: str) -> int:
@@ -209,7 +194,7 @@ async def generate_cover(
     art_path = output_dir / f"{book_id}_cover_art.png"
     cover_path = output_dir / f"{book_id}_cover_full.png"
 
-    await generate_central_art(art_prompt, config, art_path)
+    await generate_central_art(art_prompt, config, art_path, style=style)
 
     template = select_template(style)
     composite_cover(

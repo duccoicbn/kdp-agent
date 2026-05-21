@@ -50,6 +50,21 @@ QUICKSTART.md         # Setup guide
 | Ollama | `ollama serve` | 11434 |
 | Dashboard | `python -m kdp_agent dashboard start` | 8080 |
 
+## Image Providers (parallel + auto-fallback)
+
+| Provider | Type | Cost | Use case |
+|----------|------|------|----------|
+| **Replicate** | Cloud API | ~$0.025/img | Default — best quality (Flux.1-pro, SDXL) |
+| **Together.ai** | Cloud API | Free tier available | Fallback or full free-mode (FLUX.1-schnell-Free) |
+
+Routing logic in `kdp_agent/agents/content/image_gen.py`:
+
+1. Try `image_gen.provider` (primary) with `max_gen_retries` exponential backoff
+2. If still fails AND `fallback_provider` is set → switch to secondary, retry once
+3. Style-based model selection: `*_model_space` vs `*_model_anime`
+
+Adding a new provider: implement `ImageProvider` protocol → add to `ImageGenerator._PROVIDERS`.
+
 ## Phases còn lại
 
 | Phase | Mô tả | Tasks |

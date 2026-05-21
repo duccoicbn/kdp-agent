@@ -8,7 +8,9 @@ Semi-auto AI system for Amazon KDP coloring book publishing (Space/Anime style).
 
 - Python 3.11+
 - [Ollama](https://ollama.ai) running locally (for metadata generation)
-- Replicate API account (for image generation) — [sign up free](https://replicate.com)
+- **At least one image provider** (choose one or both):
+  - [Replicate](https://replicate.com) — premium quality, ~$0.025/image
+  - [Together.ai](https://api.together.xyz) — has free tier (Flux.1-schnell-Free)
 - SurrealDB running locally (for book records)
 - Google Chrome (for KDP upload step)
 
@@ -32,12 +34,38 @@ playwright install chromium
 
 ## 2. Configure API Keys
 
-```bash
-# Windows (PowerShell)
+```powershell
+# Primary provider: Replicate (paid, premium quality)
 $env:REPLICATE_API_TOKEN = "r8_your_token_here"
 
-# Optional: DALL-E 3 for cover images
-$env:OPENAI_API_KEY = "sk-your_key_here"
+# Secondary provider: Together.ai (free tier available, auto-fallback if Replicate fails)
+$env:TOGETHER_API_KEY = "your_together_key_here"
+```
+
+### Image Provider Selection
+
+Edit `kdp-config.yaml`:
+
+```yaml
+image_gen:
+  provider: "replicate"           # Primary: "replicate" | "together"
+  fallback_provider: "together"   # Auto-fallback on primary failure ("" to disable)
+```
+
+**Free tier mode** (no Replicate cost — slower but $0):
+
+```yaml
+image_gen:
+  provider: "together"
+  fallback_provider: ""
+```
+
+**Best of both** (default — try premium first, fallback to free):
+
+```yaml
+image_gen:
+  provider: "replicate"
+  fallback_provider: "together"
 ```
 
 ---
@@ -50,7 +78,7 @@ python -m kdp_agent setup
 
 This checks:
 - ✓ Ollama connection (localhost:11434)
-- ✓ Replicate API key
+- ✓ Image provider API keys (Replicate and/or Together.ai)
 - ✓ SurrealDB connection (localhost:8000)
 
 ---

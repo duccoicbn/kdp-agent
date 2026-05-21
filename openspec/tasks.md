@@ -27,8 +27,10 @@
 
 - [x] **T-010**: Implement `kdp_agent/agents/content/prompt_templates.py` — Space + Anime templates (REQ-CONTENT-001)
   - Template engine với theme variable, NEGATIVE_PROMPTS_BASELINE từ config
-- [x] **T-011**: Implement `kdp_agent/agents/content/image_gen.py` — Replicate API client (REQ-CONTENT-002)
-  - Flux.1-dev cho space, SDXL+LoRA cho anime, fallback Together.ai
+- [x] **T-011**: Implement `kdp_agent/agents/content/image_gen.py` — multi-provider client (REQ-CONTENT-002)
+  - Flux.1-dev cho space, SDXL+LoRA cho anime
+  - Parallel providers: Replicate (primary) + Together.ai (fallback) with auto-failover
+  - Pluggable `ImageProvider` protocol for adding new backends
 - [x] **T-012**: Implement `kdp_agent/agents/content/postprocess.py` — binarize + vectorize pipeline (REQ-CONTENT-003)
   - rembg → threshold → img2vector → quality checks (stroke, closed paths, regions)
 - [ ] **T-013**: Implement `kdp_agent/agents/content/ip_check.py` — CLIP similarity check (REQ-CONTENT-004)

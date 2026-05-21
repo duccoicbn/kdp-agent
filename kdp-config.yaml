@@ -25,9 +25,15 @@ generation:
 
 image_gen:
   provider: "replicate"        # "replicate" | "together" | "dalle3"
+  fallback_provider: "together"  # "" | "replicate" | "together" — auto-retry on primary failure
+
   replicate_model_space: "black-forest-labs/flux-1.1-pro"
   replicate_model_anime: "stability-ai/sdxl:39ed52f2319f9c703d0379b668aed8521d0e4b2a6893e06f21ee07a56b9ee64f"
-  together_model: "black-forest-labs/FLUX.1-schnell-Free"
+
+  together_model_space: "black-forest-labs/FLUX.1-schnell-Free"
+  together_model_anime: "black-forest-labs/FLUX.1-schnell-Free"
+  together_steps: 4              # FLUX.1-schnell-Free supports max 4 steps
+
   ip_similarity_threshold: 0.75  # CLIP cosine similarity threshold for IP check
   negative_prompts_baseline: >
     known anime characters, naruto, goku, luffy, pikachu, existing IP,
