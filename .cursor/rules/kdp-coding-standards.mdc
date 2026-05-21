@@ -1,0 +1,33 @@
+---
+description: KDP Agent coding standards — apply when writing or editing Python code
+globs: ["**/*.py"]
+alwaysApply: true
+---
+
+# KDP Agent — Coding Standards
+
+## Config Access
+- ALWAYS load settings via `from kdp_agent.config import get_config` — NEVER use hardcoded numbers
+- Threshold, model name, URL đều trong `kdp-config.yaml`
+
+## Async Pattern
+- I/O operations (Replicate, Ollama, SurrealDB, file I/O) phải `async/await`
+- Dùng `asyncio.run()` chỉ ở CLI entry point
+
+## IP Safety Gate
+- Mọi image path từ generate pipeline phải qua `IpChecker.check(path)` trước khi lưu vào DB
+- Nếu `is_safe=False` → regenerate, không skip
+
+## KDP HITL Boundary (CRITICAL)
+- `session.py` chỉ được: navigate, fill text/select, upload files
+- TUYỆT ĐỐI KHÔNG: click nút "Submit for Review", "Publish", "Save and Continue" ở bước cuối
+- Gate này bảo vệ khỏi vi phạm KDP ToS
+
+## Error Handling
+- Dùng `raise` rõ ràng với custom exception class
+- Không dùng bare `except:` hay `except Exception: pass`
+- Log lỗi trước khi raise
+
+## Type Hints
+- Mọi function phải có type hint đầy đủ (params + return type)
+- Dùng `from __future__ import annotations` ở đầu file
