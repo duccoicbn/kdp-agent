@@ -41,15 +41,15 @@
 
 ## Phase 2: Cover Agent (2–3 days)
 
-- [ ] **T-016**: Tạo cover template library: 5 SVG templates tại `assets/cover-templates/`
+- [x] **T-016**: Tạo cover template library: 5 SVG templates tại `assets/cover-templates/`
   - Templates: `space-dark`, `space-light`, `anime-vibrant`, `anime-minimal`, `universal`
   - Slots: central_art (placeholder), title_area, author_area, back_description_area
-- [ ] **T-017**: Implement `kdp_agent/agents/cover/cover_gen.py`
-  - DALL-E 3 API → generate central art image
-  - Rasterize SVG template → composite with AI art → add typography
+- [x] **T-017**: Implement `kdp_agent/agents/cover/cover_gen.py`
+  - Replicate API (Flux.1-pro) → generate central art image (switched from DALL-E 3 per config)
+  - Rasterize SVG template → composite with AI art → add typography via Pillow
   - KDP spine calculator: width = pages × 0.002252" + 0.06"
-- [ ] **T-018**: Implement cover PDF export: front+spine+back single PDF, CMYK, correct dimensions
-- [ ] **T-019**: Implement `kdp_agent/commands/cover.py` — CLI command
+- [x] **T-018**: Implement cover PDF export: front+spine+back single PDF, CMYK, correct dimensions
+- [x] **T-019**: Implement `kdp_agent/commands/cover.py` — CLI command
 
 ## Phase 3: Metadata Agent (1–2 days)
 
