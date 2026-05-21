@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- KDP Cover Template: universal  neutral, works for any niche/style -->
+<svg xmlns="http://www.w3.org/2000/svg"
+     id="kdp-cover-universal"
+     data-template="universal"
+     data-style="any"
+     viewBox="0 0 2625 3375"
+     width="2625" height="3375">
+
+  <defs>
+    <linearGradient id="bg-grad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#2D3561"/>
+      <stop offset="100%" style="stop-color:#1a1a2e"/>
+    </linearGradient>
+    <linearGradient id="gold-grad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#D4AF37"/>
+      <stop offset="50%" style="stop-color:#F5D76E"/>
+      <stop offset="100%" style="stop-color:#D4AF37"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="2625" height="3375" fill="url(#bg-grad)"/>
+
+  <!-- Top gold bar -->
+  <rect x="0" y="0" width="2625" height="12" fill="url(#gold-grad)"/>
+  <rect x="0" y="3363" width="2625" height="12" fill="url(#gold-grad)"/>
+
+  <!-- Subtle texture pattern -->
+  <g opacity="0.04" fill="white">
+    <rect x="0" y="0" width="2625" height="3375"
+          style="background-image: repeating-linear-gradient(45deg, white 0, white 1px, transparent 0, transparent 50%); background-size: 20px 20px;"/>
+  </g>
+
+  <!-- Corner ornaments -->
+  <g stroke="url(#gold-grad)" stroke-width="2" fill="none" opacity="0.5">
+    <path d="M80,80 L180,80 L180,90 M80,80 L80,180 L90,180"/>
+    <path d="M2545,80 L2445,80 L2445,90 M2545,80 L2545,180 L2535,180"/>
+    <path d="M80,3295 L180,3295 L180,3285 M80,3295 L80,3195 L90,3195"/>
+    <path d="M2545,3295 L2445,3295 L2445,3285 M2545,3295 L2545,3195 L2535,3195"/>
+  </g>
+
+  <!-- Central art placeholder -->
+  <g id="central_art">
+    <rect id="central_art_bounds"
+          x="412" y="350" width="1800" height="1850"
+          fill="none" stroke="#D4AF37" stroke-width="2" opacity="0.4"/>
+    <text x="1312" y="1300" text-anchor="middle" fill="#D4AF37" font-family="serif" font-size="48"
+          opacity="0.4">[AI ART PLACEHOLDER]</text>
+  </g>
+
+  <!-- Decorative divider -->
+  <g>
+    <line x1="312" y1="2330" x2="2312" y2="2330" stroke="url(#gold-grad)" stroke-width="1.5" opacity="0.6"/>
+    <circle cx="1312" cy="2330" r="6" fill="url(#gold-grad)" opacity="0.6"/>
+    <line x1="312" y1="2350" x2="2312" y2="2350" stroke="url(#gold-grad)" stroke-width="0.5" opacity="0.4"/>
+  </g>
+
+  <!-- Title area -->
+  <g id="title_area">
+    <text id="title_text"
+          x="1312" y="2500" text-anchor="middle"
+          fill="url(#gold-grad)" font-family="Georgia, serif" font-size="96" font-weight="bold">
+      [BOOK TITLE]
+    </text>
+    <text id="subtitle_text"
+          x="1312" y="2640" text-anchor="middle"
+          fill="#B8A9C9" font-family="sans-serif" font-size="52" letter-spacing="8">
+      COLORING BOOK
+    </text>
+  </g>
+
+  <!-- Author area -->
+  <g id="author_area">
+    <text id="author_text"
+          x="1312" y="3220" text-anchor="middle"
+          fill="#B8A9C9" font-family="Georgia, serif" font-size="52">
+      [AUTHOR NAME]
+    </text>
+  </g>
+
+  <!-- Back cover area -->
+  <g id="back_description_area">
+    <rect id="back_text_bounds" x="80" y="350" width="700" height="2400"
+          fill="none" stroke="#D4AF37" stroke-width="1" stroke-dasharray="10,8" opacity="0.25"/>
+  </g>
+</svg>

@@ -36,9 +36,10 @@ image_gen:
     low quality, blurry, jpeg artifacts
 
 cover:
-  dall_e_model: "dall-e-3"
-  dall_e_size: "1024x1024"
-  dall_e_quality: "hd"
+  default_author: "KDP Agent"
+  output_dir: "output/covers"
+  cover_model: "black-forest-labs/flux-1.1-pro"
+  cover_steps: 30
   templates_dir: "assets/cover-templates"
   bleed_inches: 0.125
   spine_width_per_page_inches: 0.002252

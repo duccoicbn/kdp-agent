@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- KDP Cover Template: space-light  bright pastel cosmos theme -->
+<svg xmlns="http://www.w3.org/2000/svg"
+     id="kdp-cover-space-light"
+     data-template="space-light"
+     data-style="space"
+     viewBox="0 0 2625 3375"
+     width="2625" height="3375">
+
+  <defs>
+    <linearGradient id="bg-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#E8F4FD"/>
+      <stop offset="50%" style="stop-color:#F0E6FF"/>
+      <stop offset="100%" style="stop-color:#E0F0FF"/>
+    </linearGradient>
+    <linearGradient id="title-band" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#6C63FF"/>
+      <stop offset="100%" style="stop-color:#A78BFA"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="2625" height="3375" fill="url(#bg-grad)"/>
+
+  <!-- Soft cloud/nebula shapes -->
+  <ellipse cx="500" cy="600" rx="600" ry="300" fill="#C4B5FD" opacity="0.15"/>
+  <ellipse cx="2100" cy="500" rx="500" ry="250" fill="#BAE6FD" opacity="0.2"/>
+  <ellipse cx="1312" cy="2800" rx="800" ry="200" fill="#DDD6FE" opacity="0.15"/>
+
+  <!-- Stars (soft) -->
+  <g id="stars" opacity="0.5">
+    <circle cx="200" cy="300" r="3" fill="#6C63FF"/>
+    <circle cx="500" cy="150" r="2" fill="#A78BFA"/>
+    <circle cx="800" cy="400" r="3" fill="#60A5FA"/>
+    <circle cx="1200" cy="200" r="2" fill="#6C63FF"/>
+    <circle cx="1800" cy="300" r="3" fill="#A78BFA"/>
+    <circle cx="2200" cy="180" r="2" fill="#60A5FA"/>
+    <circle cx="2450" cy="350" r="3" fill="#6C63FF"/>
+  </g>
+
+  <!-- Central art placeholder -->
+  <g id="central_art">
+    <rect id="central_art_bounds"
+          x="412" y="500" width="1800" height="1800"
+          fill="#F5F0FF" stroke="#C4B5FD" stroke-width="3" rx="16"/>
+    <text x="1312" y="1430" text-anchor="middle" fill="#C4B5FD" font-family="sans-serif" font-size="48"
+          opacity="0.6">[AI ART PLACEHOLDER]</text>
+  </g>
+
+  <!-- Title area -->
+  <g id="title_area">
+    <rect x="162" y="2380" width="2300" height="340" rx="16" fill="url(#title-band)" opacity="0.9"/>
+    <text id="title_text"
+          x="1312" y="2510" text-anchor="middle"
+          fill="white" font-family="Georgia, serif" font-size="90" font-weight="bold">
+      [BOOK TITLE]
+    </text>
+    <text id="subtitle_text"
+          x="1312" y="2650" text-anchor="middle"
+          fill="#E8E0FF" font-family="sans-serif" font-size="52" letter-spacing="6">
+      COLORING BOOK
+    </text>
+  </g>
+
+  <!-- Author area -->
+  <g id="author_area">
+    <text id="author_text"
+          x="1312" y="3200" text-anchor="middle"
+          fill="#7C3AED" font-family="Georgia, serif" font-size="52">
+      [AUTHOR NAME]
+    </text>
+  </g>
+
+  <!-- Border -->
+  <rect x="30" y="30" width="2565" height="3315"
+        fill="none" stroke="#A78BFA" stroke-width="4" rx="16" opacity="0.5"/>
+
+  <!-- Back cover area -->
+  <g id="back_description_area">
+    <rect id="back_text_bounds" x="80" y="400" width="700" height="2400"
+          fill="none" stroke="#C4B5FD" stroke-width="1" stroke-dasharray="10,8" opacity="0.4"/>
+  </g>
+</svg>

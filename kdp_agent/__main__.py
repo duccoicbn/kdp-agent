@@ -11,6 +11,7 @@ app = typer.Typer(
 
 def _load_commands() -> None:
     from kdp_agent.commands import (
+        cover,
         dashboard,
         generate,
         marketing,
@@ -23,6 +24,7 @@ def _load_commands() -> None:
 
     app.add_typer(setup.app, name="setup", help="First-run setup wizard & health checks.")
     app.add_typer(generate.app, name="generate", help="Generate coloring book interior pages.")
+    app.add_typer(cover.app, name="cover", help="Generate KDP cover (art + PDF).")
     app.add_typer(metadata.app, name="metadata", help="Generate book metadata via Ollama.")
     app.add_typer(dashboard.app, name="dashboard", help="Start the review dashboard.")
     app.add_typer(publish.app, name="publish", help="Upload approved book to KDP via Playwright.")

@@ -70,9 +70,10 @@ class ImageGenConfig:
 
 @dataclass
 class CoverConfig:
-    dall_e_model: str = "dall-e-3"
-    dall_e_size: str = "1024x1024"
-    dall_e_quality: str = "hd"
+    default_author: str = "KDP Agent"
+    output_dir: str = "output/covers"
+    cover_model: str = "black-forest-labs/flux-1.1-pro"
+    cover_steps: int = 30
     templates_dir: str = "assets/cover-templates"
     bleed_inches: float = 0.125
     spine_width_per_page_inches: float = 0.002252

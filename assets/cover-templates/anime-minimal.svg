@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- KDP Cover Template: anime-minimal  clean ink-on-white aesthetic -->
+<svg xmlns="http://www.w3.org/2000/svg"
+     id="kdp-cover-anime-minimal"
+     data-template="anime-minimal"
+     data-style="anime"
+     viewBox="0 0 2625 3375"
+     width="2625" height="3375">
+
+  <!-- White background -->
+  <rect width="2625" height="3375" fill="#FAFAFA"/>
+
+  <!-- Thin accent lines -->
+  <line x1="80" y1="220" x2="2545" y2="220" stroke="#1a1a2e" stroke-width="6"/>
+  <line x1="80" y1="226" x2="2545" y2="226" stroke="#E63946" stroke-width="2"/>
+  <line x1="80" y1="3130" x2="2545" y2="3130" stroke="#1a1a2e" stroke-width="6"/>
+  <line x1="80" y1="3136" x2="2545" y2="3136" stroke="#E63946" stroke-width="2"/>
+
+  <!-- Central art placeholder -->
+  <g id="central_art">
+    <rect id="central_art_bounds"
+          x="412" y="300" width="1800" height="1900"
+          fill="#F5F5F5" stroke="#CCCCCC" stroke-width="2"/>
+    <text x="1312" y="1280" text-anchor="middle" fill="#CCCCCC" font-family="sans-serif" font-size="48">
+      [AI ART PLACEHOLDER]
+    </text>
+  </g>
+
+  <!-- Title area (stark, typographic) -->
+  <g id="title_area">
+    <text id="title_text"
+          x="1312" y="2480" text-anchor="middle"
+          fill="#1a1a2e" font-family="Georgia, serif" font-size="100" font-weight="bold">
+      [BOOK TITLE]
+    </text>
+    <!-- Red accent underline -->
+    <line id="title_underline" x1="562" y1="2510" x2="2062" y2="2510"
+          stroke="#E63946" stroke-width="5"/>
+    <text id="subtitle_text"
+          x="1312" y="2620" text-anchor="middle"
+          fill="#555" font-family="sans-serif" font-size="48" letter-spacing="10">
+      COLORING BOOK
+    </text>
+  </g>
+
+  <!-- Author area -->
+  <g id="author_area">
+    <text id="author_text"
+          x="1312" y="3080" text-anchor="middle"
+          fill="#888" font-family="Georgia, serif" font-size="48">
+      [AUTHOR NAME]
+    </text>
+  </g>
+
+  <!-- Outer double border -->
+  <rect x="30" y="30" width="2565" height="3315"
+        fill="none" stroke="#1a1a2e" stroke-width="5"/>
+  <rect x="50" y="50" width="2525" height="3275"
+        fill="none" stroke="#1a1a2e" stroke-width="1.5"/>
+
+  <!-- Back cover area -->
+  <g id="back_description_area">
+    <rect id="back_text_bounds" x="80" y="300" width="700" height="2400"
+          fill="none" stroke="#CCC" stroke-width="1" stroke-dasharray="10,8" opacity="0.5"/>
+  </g>
+</svg>
