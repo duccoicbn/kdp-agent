@@ -16,11 +16,32 @@ Agent chịu trách nhiệm generate coloring book interior pages (40 trang) the
 - Negative prompts: append `NEGATIVE_PROMPTS_BASELINE` từ config
 - **Acceptance**: Template render với theme variable, negative prompts always present
 
-### REQ-CONTENT-002: Image Generation (Replicate API)
-- Sử dụng Replicate API với model: Flux.1-dev (space) / SDXL + AnimeLineArt LoRA (anime)
-- Fallback: Together.ai nếu Replicate không available
-- Output: 1024×1024 PNG minimum → resize/crop cho 8.5×11 @ 300 DPI
-- **Acceptance**: Generate 1 image < 60 giây, output ≥ 300 DPI khi converted to 8.5×11
+### REQ-CONTENT-002: Image Generation (Multi-Provider Architecture)
+
+**Provider Architecture**: Pluggable `ImageProvider` protocol cho phép thêm/đổi backend không cần sửa pipeline.
+
+**Supported providers**:
+- **Replicate** (default primary): Flux.1-pro (space) / SDXL (anime) — paid (~$0.025/image), premium quality
+- **Together.ai** (default fallback): FLUX.1-schnell-Free — free tier, lower quality but zero cost
+- **Future**: Local SD / ComfyUI / DALL-E 3 có thể plug-in qua cùng protocol
+
+**Routing rules** (configured via `kdp-config.yaml`):
+1. Try `image_gen.provider` (primary) with up to `max_gen_retries` exponential backoff
+2. If still fails AND `image_gen.fallback_provider` is set → switch to secondary, retry once
+3. Each provider routes model theo `style` arg: `*_model_space` vs `*_model_anime`
+
+**Configuration use cases**:
+- Premium only: `provider: replicate`, `fallback_provider: ""`
+- Free only: `provider: together`, `fallback_provider: ""`
+- Best of both (default): `provider: replicate`, `fallback_provider: together`
+
+**Output normalization**: All providers return PNG bytes → unified resize/save at 300 DPI.
+
+- **Acceptance**:
+  - Switching provider purely qua YAML (no code change)
+  - Replicate failure (e.g., quota exceeded) → seamless fallback to Together.ai
+  - Generate 1 image < 60 giây (Replicate) / < 90 giây (Together)
+  - Output ≥ 300 DPI khi converted to 8.5×11
 
 ### REQ-CONTENT-003: Post-Processing Pipeline
 - Background removal (nếu cần): rembg library

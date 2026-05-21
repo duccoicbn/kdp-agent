@@ -330,8 +330,8 @@ image_gen:
 | Image gen infrastructure | Start với cloud API (Replicate / Together.ai), migrate sang self-hosted (ComfyUI on GPU VM) khi có doanh thu | Cost-optimal: zero upfront, scale as revenue grows |
 | Content style focus | **Space/Universe** + **Anime** style coloring books | High-demand, distinctive aesthetic, strong community |
 | LLM backend | **Ollama** (local hoặc cloud VM) cho text generation (metadata, prompts) | Cost: $0, privacy, no rate limits |
-| Image gen for art | **Replicate API** (Flux.1-dev / SDXL) ban đầu → ComfyUI self-hosted sau | Flexibility |
-| Cover image | **DALL-E 3 API** hoặc **Stable Diffusion via Replicate** | Quality covers critical for CTR |
+| Image gen for art | **Multi-provider architecture** — Replicate (Flux.1-pro/SDXL) primary + Together.ai (FLUX.1-schnell-Free) fallback. Provider chọn qua `kdp-config.yaml`. Future: local SD/ComfyUI as 3rd provider. | Flexibility + cost control: pay-as-you-go default, free-tier mode optional, auto-failover for reliability |
+| Cover image | Cùng provider stack với interior pages (chia sẻ `ImageGenerator` facade) | Consistency — switch providers 1 chỗ, áp dụng cho cả interior và cover |
 | KDP account | 1 account, start slow | Avoid ban |
 | Niche research | kdp-scout (free) + Amazon autocomplete | Start lean |
 | Dashboard | FastAPI + Vanilla JS (localhost:8090) | Lightweight |
