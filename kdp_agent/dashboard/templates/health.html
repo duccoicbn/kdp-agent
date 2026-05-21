@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Health — KDP Agent</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, sans-serif; background: #0f1117; color: #e2e8f0; }
+    .header { background: #1a1d2e; border-bottom: 1px solid #2d3748; padding: 14px 24px; display: flex; align-items: center; gap: 16px; }
+    .back { color: #7c3aed; text-decoration: none; font-size: 0.9rem; }
+    .container { max-width: 700px; margin: 40px auto; padding: 0 24px; }
+    .card { background: #1a1d2e; border: 1px solid #2d3748; border-radius: 12px; padding: 24px; margin-bottom: 16px; }
+    .card-title { font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.06em; color: #64748b; margin-bottom: 16px; }
+    .service { display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #1e293b; }
+    .service:last-child { border-bottom: none; }
+    .svc-name { font-weight: 600; }
+    .svc-detail { font-size: 0.8rem; color: #64748b; }
+    .status-ok   { color: #34d399; font-weight: 700; }
+    .status-fail { color: #f87171; font-weight: 700; }
+    .ms { font-size: 0.75rem; color: #4a5568; margin-left: 8px; }
+    .refresh-btn { background: #2d3748; color: #e2e8f0; border: none; padding: 8px 16px; border-radius: 8px; cursor: pointer; font-size: 0.85rem; }
+    .refresh-btn:hover { background: #374151; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <a class="back" href="/">← Back</a>
+    <span style="font-weight:600;">API Health</span>
+    <button class="refresh-btn" onclick="location.reload()">↻ Refresh</button>
+  </div>
+  <div class="container">
+    <div class="card">
+      <div class="card-title">Service Status</div>
+      {% for svc in services %}
+      <div class="service">
+        <div>
+          <div class="svc-name">{{ svc.name }}</div>
+          <div class="svc-detail">{{ svc.detail }}</div>
+        </div>
+        <div>
+          {% if svc.ok %}
+            <span class="status-ok">✓ OK</span>
+          {% else %}
+            <span class="status-fail">✗ DOWN</span>
+          {% endif %}
+          <span class="ms">{{ svc.ms }}ms</span>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+
+    <div class="card">
+      <div class="card-title">Environment</div>
+      <div class="service">
+        <div class="svc-name">REPLICATE_API_TOKEN</div>
+        <div id="rt-status" class="svc-detail">checking...</div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const hasReplicate = "{{ 'REPLICATE_API_TOKEN' in __import__('os').environ }}";
+    document.getElementById('rt-status').textContent =
+      hasReplicate === 'True' ? '✓ Set' : '✗ Not set in environment';
+  </script>
+</body>
+</html>

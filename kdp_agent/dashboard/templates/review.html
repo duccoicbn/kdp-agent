@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Review: {{ book.metadata.title or book.theme }}</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0f1117; color: #e2e8f0; }
+    .header { background: #1a1d2e; border-bottom: 1px solid #2d3748; padding: 14px 24px; display: flex; align-items: center; gap: 16px; }
+    .back { color: #7c3aed; text-decoration: none; font-size: 0.9rem; }
+    .title { font-weight: 600; font-size: 1.05rem; }
+    .container { max-width: 1200px; margin: 0 auto; padding: 24px; display: grid; grid-template-columns: 1fr 380px; gap: 24px; }
+    .section { background: #1a1d2e; border: 1px solid #2d3748; border-radius: 12px; padding: 20px; }
+    .section-title { font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.06em; color: #64748b; margin-bottom: 14px; font-weight: 600; }
+    .page-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
+    .page-thumb { border: 2px solid #2d3748; border-radius: 6px; overflow: hidden; cursor: pointer; transition: border-color 0.2s; }
+    .page-thumb:hover { border-color: #7c3aed; }
+    .page-thumb img { width: 100%; display: block; background: white; }
+    .field { margin-bottom: 14px; }
+    .field label { display: block; font-size: 0.78rem; color: #94a3b8; margin-bottom: 5px; }
+    .field input, .field textarea { width: 100%; background: #0f1117; border: 1px solid #2d3748; color: #e2e8f0; border-radius: 8px; padding: 8px 10px; font-size: 0.85rem; }
+    .field textarea { min-height: 90px; resize: vertical; }
+    .field input:focus, .field textarea:focus { outline: none; border-color: #7c3aed; }
+    .keywords-list { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
+    .kw-tag { background: #1e293b; border: 1px solid #334155; padding: 3px 10px; border-radius: 999px; font-size: 0.75rem; color: #94a3b8; }
+    .actions { display: flex; gap: 10px; margin-top: 20px; }
+    .btn { padding: 10px 20px; border-radius: 8px; font-weight: 600; font-size: 0.9rem; border: none; cursor: pointer; }
+    .btn-approve { background: #059669; color: white; flex: 1; }
+    .btn-approve:hover { background: #047857; }
+    .btn-reject  { background: #dc2626; color: white; }
+    .btn-reject:hover  { background: #b91c1c; }
+    .btn-preflight { background: #1e293b; color: #94a3b8; border: 1px solid #334155; }
+    .btn-preflight:hover { background: #334155; }
+    .cover-preview { margin-bottom: 16px; }
+    .cover-preview img { width: 100%; border-radius: 8px; border: 1px solid #2d3748; }
+    .toast { position: fixed; bottom: 24px; right: 24px; padding: 12px 20px; border-radius: 8px; font-size: 0.9rem; font-weight: 600; display: none; z-index: 999; }
+    .toast.success { background: #059669; color: white; }
+    .toast.error   { background: #dc2626; color: white; }
+    @media (max-width: 900px) { .container { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <a class="back" href="/">← Back</a>
+    <span class="title">{{ book.metadata.title or book.theme }}</span>
+    <span style="font-size:0.78rem; color:#64748b;">{{ book.niche }} · {{ book.style }} · {{ book.pages_generated }}p</span>
+  </div>
+
+  <div class="container">
+    <!-- Left: pages -->
+    <div>
+      <div class="section" style="margin-bottom:16px;">
+        <div class="section-title">Interior Pages ({{ page_files|length }})</div>
+        {% if page_files %}
+        <div class="page-grid">
+          {% for p in page_files %}
+          <div class="page-thumb" onclick="window.open('{{ p }}','_blank')">
+            <img src="{{ p }}" alt="Page" loading="lazy">
+          </div>
+          {% endfor %}
+        </div>
+        {% else %}
+        <p style="color:#64748b; font-size:0.85rem;">No pages generated yet. Run <code>generate</code> command first.</p>
+        {% endif %}
+      </div>
+
+      {% if cover_jpg %}
+      <div class="section">
+        <div class="section-title">Cover Preview</div>
+        <div class="cover-preview">
+          <img src="{{ cover_jpg }}" alt="Cover">
+        </div>
+      </div>
+      {% endif %}
+    </div>
+
+    <!-- Right: metadata + actions -->
+    <div>
+      <div class="section">
+        <div class="section-title">Metadata</div>
+
+        <div class="field">
+          <label>Title</label>
+          <input id="f-title" value="{{ book.metadata.title }}" maxlength="200">
+        </div>
+        <div class="field">
+          <label>Subtitle</label>
+          <input id="f-subtitle" value="{{ book.metadata.subtitle }}" maxlength="200">
+        </div>
+        <div class="field">
+          <label>Description</label>
+          <textarea id="f-description">{{ book.metadata.description }}</textarea>
+        </div>
+        <div class="field">
+          <label>Keywords ({{ book.metadata.keywords|length }}/7)</label>
+          <div class="keywords-list">
+            {% for kw in book.metadata.keywords %}<span class="kw-tag">{{ kw }}</span>{% endfor %}
+          </div>
+        </div>
+        <div class="field">
+          <label>Price (USD)</label>
+          <input id="f-price" type="number" step="0.01" value="{{ book.metadata.price_usd }}">
+        </div>
+
+        <div class="actions">
+          <button class="btn btn-approve" onclick="approve()">✓ Approve</button>
+          <button class="btn btn-reject"  onclick="reject()">✗ Reject</button>
+        </div>
+        <div style="margin-top:10px;">
+          <a class="btn btn-preflight" href="/preflight/{{ book.id }}">Pre-flight Check</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast" class="toast"></div>
+
+  <script>
+    const BOOK_ID = "{{ book.id }}";
+
+    async function saveMetadata() {
+      const payload = {
+        title: document.getElementById('f-title').value,
+        subtitle: document.getElementById('f-subtitle').value,
+        description: document.getElementById('f-description').value,
+        price_usd: parseFloat(document.getElementById('f-price').value),
+      };
+      await fetch(`/api/book/${BOOK_ID}/metadata`, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(payload),
+      });
+    }
+
+    async function approve() {
+      await saveMetadata();
+      const r = await fetch(`/api/book/${BOOK_ID}/approve`, { method: 'POST' });
+      const d = await r.json();
+      showToast('Book approved!', 'success');
+      setTimeout(() => window.location.href = '/', 1200);
+    }
+
+    async function reject() {
+      const r = await fetch(`/api/book/${BOOK_ID}/reject`, { method: 'POST' });
+      showToast('Book rejected.', 'error');
+      setTimeout(() => window.location.href = '/', 1200);
+    }
+
+    function showToast(msg, type) {
+      const el = document.getElementById('toast');
+      el.textContent = msg;
+      el.className = `toast ${type}`;
+      el.style.display = 'block';
+      setTimeout(() => el.style.display = 'none', 2500);
+    }
+  </script>
+</body>
+</html>

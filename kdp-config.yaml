@@ -1,0 +1,76 @@
+# KDP Agent Configuration
+# All thresholds and tunables — edit freely, no rebuild needed.
+
+niche_research:
+  bsr_threshold: 50000        # Max BSR to consider niche viable
+  competition_max: 300        # Max competing books for a keyword
+  trend_min_score: 0.6        # Min normalized trend score (0-1)
+  top_opportunities: 20       # Number of top niches to save per run
+
+publishing:
+  max_books_per_day: 2                        # Conservative ToS safety cap
+  playwright_action_delay_ms: [3000, 8000]   # Random delay range between KDP actions (ms)
+  typing_delay_ms: [50, 150]                  # Per-character typing delay (ms)
+  kdp_dashboard_url: "https://kdp.amazon.com/en_US/bookshelf"
+  playwright_cdp_port: 9222                   # Chrome remote debugging port
+
+generation:
+  min_stroke_pt: 0.5           # Minimum stroke width for coloring book pages
+  max_unclosed_path_pct: 5.0   # Max % unclosed SVG paths (colorability)
+  min_regions: 20              # Minimum distinct regions per page
+  target_dpi: 300              # Target DPI for KDP output
+  pages_per_book: 40           # Standard coloring book page count
+  image_size: 1024             # Generation image size (square, px)
+  max_gen_retries: 3           # Max retries if quality check fails
+
+image_gen:
+  provider: "replicate"        # "replicate" | "together" | "dalle3"
+  replicate_model_space: "black-forest-labs/flux-1.1-pro"
+  replicate_model_anime: "stability-ai/sdxl:39ed52f2319f9c703d0379b668aed8521d0e4b2a6893e06f21ee07a56b9ee64f"
+  together_model: "black-forest-labs/FLUX.1-schnell-Free"
+  ip_similarity_threshold: 0.75  # CLIP cosine similarity threshold for IP check
+  negative_prompts_baseline: >
+    known anime characters, naruto, goku, luffy, pikachu, existing IP,
+    copyrighted characters, watermark, logo, text, brand names,
+    famous fictional characters, trademarked characters, signature,
+    low quality, blurry, jpeg artifacts
+
+cover:
+  dall_e_model: "dall-e-3"
+  dall_e_size: "1024x1024"
+  dall_e_quality: "hd"
+  templates_dir: "assets/cover-templates"
+  bleed_inches: 0.125
+  spine_width_per_page_inches: 0.002252
+  spine_base_inches: 0.06
+
+metadata:
+  ollama_model: "qwen3:8b"            # Local Ollama model for metadata generation
+  ollama_base_url: "http://localhost:11434"
+  title_max_chars: 200
+  subtitle_max_chars: 200
+  description_target_words: 500
+  keyword_max_chars: 50
+  keyword_count: 7
+  category_count: 2
+
+dashboard:
+  port: 8090
+  host: "127.0.0.1"
+  auto_open_browser: true
+  thumbnail_width: 200        # Page thumbnail width (px) in dashboard
+
+surreal:
+  url: "ws://localhost:8000"
+  namespace: "kdp"
+  database: "agent"
+
+marketing:
+  mockup_templates_dir: "assets/mockup-templates"
+  output_formats: ["square_1080", "pinterest_pin", "tiktok_reel", "twitter_banner"]
+  video_duration_reel_s: 30
+  video_duration_preview_s: 60
+  music_dir: "assets/music"
+  tts_enabled: false
+  tts_provider: "kokoro"      # "kokoro" | "elevenlabs"
+  ai_video_enabled: false     # Kling/Pika AI video (optional, paid API)

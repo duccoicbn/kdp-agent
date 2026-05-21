@@ -1,0 +1,51 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.venv/
+venv/
+env/
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# Env / secrets
+.env
+.env.*
+*.env
+
+# Output (generated books — large files, don't commit)
+output/
+
+# Playwright
+playwright/.local-chromium/
+playwright-report/
+test-results/
+
+# Models / cache (large binary files)
+assets/ip-reference/*.jpg
+assets/ip-reference/*.png
+assets/ip-reference/*.jpeg
+*.pt
+*.pth
+*.onnx
+*.bin
+
+# SurrealDB local data
+*.db
+*.db-*
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Temp
+.tmp/
+*.log

@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Pre-flight — {{ book.metadata.title or book.theme }}</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, sans-serif; background: #0f1117; color: #e2e8f0; }
+    .header { background: #1a1d2e; border-bottom: 1px solid #2d3748; padding: 14px 24px; display: flex; align-items: center; gap: 16px; }
+    .back { color: #7c3aed; text-decoration: none; }
+    .container { max-width: 700px; margin: 40px auto; padding: 0 24px; }
+    .card { background: #1a1d2e; border: 1px solid #2d3748; border-radius: 12px; padding: 24px; }
+    .card-title { font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.06em; color: #64748b; margin-bottom: 16px; }
+    .check-row { display: flex; align-items: center; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #1e293b; }
+    .check-row:last-child { border-bottom: none; }
+    .check-name { font-weight: 600; }
+    .check-detail { font-size: 0.8rem; color: #64748b; margin-top: 2px; }
+    .pass { color: #34d399; font-size: 1.1rem; }
+    .fail { color: #f87171; font-size: 1.1rem; }
+    .summary { margin-top: 16px; font-size: 0.9rem; font-weight: 600; }
+    .summary.all-ok { color: #34d399; }
+    .summary.has-fail { color: #f87171; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <a class="back" href="/book/{{ book.id }}">← Back to Review</a>
+    <span style="font-weight:600;">KDP Pre-flight Checklist</span>
+  </div>
+  <div class="container">
+    <div class="card">
+      <div class="card-title">{{ book.metadata.title or book.theme }}</div>
+      {% for c in checks %}
+      <div class="check-row">
+        <div>
+          <div class="check-name">{{ c.name }}</div>
+          <div class="check-detail">{{ c.detail }}</div>
+        </div>
+        <span class="{{ 'pass' if c.pass else 'fail' }}">{{ '✓' if c.pass else '✗' }}</span>
+      </div>
+      {% endfor %}
+
+      {% set fail_count = checks | selectattr('pass', 'equalto', False) | list | length %}
+      <div class="summary {{ 'all-ok' if fail_count == 0 else 'has-fail' }}">
+        {% if fail_count == 0 %}
+          ✓ All checks passed — ready for KDP upload
+        {% else %}
+          ✗ {{ fail_count }} check(s) failed — fix before uploading
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</body>
+</html>
