@@ -40,6 +40,7 @@ async def _run(
     from kdp_agent.agents.content.image_gen import ImageGenerator
     from kdp_agent.agents.content.postprocess import PostProcessor
     from kdp_agent.agents.content.pdf_builder import PdfBuilder
+    from kdp_agent.agents.content.ip_check import IpChecker
     import random
 
     cfg = get_config()
@@ -58,6 +59,7 @@ async def _run(
     gen = ImageGenerator(cfg)
     proc = PostProcessor(cfg)
     builder = PdfBuilder(cfg)
+    ip = IpChecker(cfg)
 
     positive = build_prompt(theme=theme, style=style, config=cfg)
     negative = build_negative_prompt(cfg)
@@ -86,6 +88,11 @@ async def _run(
                 proc.binarize(raw_path, clean_path)
                 report = proc.check_quality(clean_path)
                 if report.passed:
+                    is_safe, sim = ip.check(clean_path)
+                    if not is_safe:
+                        console.print(f"  [yellow]Page {i+1}: IP similarity {sim:.2f} > threshold — regenerating[/yellow]")
+                        attempt += 1
+                        continue
                     break
                 attempt += 1
                 console.print(f"  [yellow]Page {i+1} attempt {attempt} failed: {report.details}[/yellow]")

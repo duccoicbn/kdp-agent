@@ -6,7 +6,6 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 
 from PIL import Image
-from reportlab.lib.pagesizes import inch
 from reportlab.lib.units import inch as rl_inch
 from reportlab.pdfgen import canvas
 
