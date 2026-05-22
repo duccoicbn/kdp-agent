@@ -335,6 +335,7 @@ image_gen:
 | KDP account | 1 account, start slow | Avoid ban |
 | Niche research | kdp-scout (free) + Amazon autocomplete | Start lean |
 | Dashboard | FastAPI + Vanilla JS (localhost:8090) | Lightweight |
+| Multi-volume series | Hybrid model (Volume series + Anthology), full Style DNA capture (prompt + palette + character + 5 ref images + seeds), dual-track dedup (seeds + prompt fingerprints), both CLI surfaces (`series add-volume` + `generate --series --volume N`) | Long-tail strategy: 1 successful niche → 5–10 volumes amortize research effort, brand-building, increased CTR via "Look Inside" series recommendations |
 
 ### Content Style Implications
 

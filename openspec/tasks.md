@@ -159,6 +159,45 @@
   - Effect: crayons/ colored pencils "drawing" animation
   - Use case: TikTok organic, high-engagement format
 
+## Phase 11: Series Tracking (3–5 days)
+
+Cho phép publish sách nhiều tập với style consistency + content dedup giữa các volumes.
+
+- [ ] **T-067**: Add `kdp_series` table to `kdp_agent/schema.surql` (REQ-SERIES-001)
+  - Fields: id, name (UNIQUE), brand, author, style, status, style_dna, used_seeds, used_prompts, volume_count
+  - Indexes: idx_series_name UNIQUE, idx_series_brand
+- [ ] **T-068**: Update `kdp_book` table for series linkage (REQ-SERIES-001)
+  - Add: series_id, volume_number, relationship_type
+  - Add composite index: idx_series_volume on (series_id, volume_number)
+  - Migration script `kdp_agent/migrations/001_add_series.surql` (idempotent)
+- [ ] **T-069**: Add `KdpSeries` + `StyleDna` Pydantic models to `kdp_agent/db.py`
+  - Backward compatible: new fields on `KdpBook` default to safe values
+- [ ] **T-070**: Implement `kdp_agent/agents/series/series_repo.py` (REQ-SERIES-001/004)
+  - CRUD: `create_series`, `get_series`, `list_series`, `update_series`, `archive_series`
+  - Volume helpers: `next_volume_number`, `list_volumes`
+- [ ] **T-071**: Implement `kdp_agent/agents/series/style_dna.py` (REQ-SERIES-002)
+  - `capture_dna(book) -> StyleDna`: extract palette (PIL), character_descriptor (Ollama), 5 ref images
+  - `apply_dna(prompt, dna) -> str`: inject character/palette/style hints into base prompt
+- [ ] **T-072**: Implement `kdp_agent/agents/series/dedup.py` (REQ-SERIES-003)
+  - `select_seeds(series, count) -> list[int]`: random seeds excluding used_seeds
+  - `prompt_fingerprint(theme, sub) -> str`: SHA256 hash (case/whitespace insensitive)
+  - `check_theme_collision(series, theme) -> bool`
+  - `commit_dedup_record(series_id, seeds, prompt_hash, volume_id)`: atomic update
+- [ ] **T-073**: Implement `kdp_agent/commands/series.py` CLI (REQ-SERIES-004)
+  - Subcommands: `create`, `list`, `show`, `archive`, `freeze-dna`, `add-volume`
+  - Register in `__main__.py` as `kdp-agent series ...`
+- [ ] **T-074**: Wire `generate run --series <name> --volume <N>` flag (REQ-SERIES-004 path B)
+  - Auto-pull DNA, auto-dedup seeds + theme
+  - Auto-compute volume_number if not specified
+- [ ] **T-075**: Add series view to dashboard at `/series/<name>` (REQ-SERIES-005)
+  - Series header, DNA panel (palette swatches + 5 ref thumbnails), volumes table
+  - "Add Volume" button + theme picker form
+- [ ] **T-076**: E2E test for series flow
+  - Create series → publish Vol.1 → freeze DNA → gen Vol.2 → verify:
+    - Vol.2 uses no seeds from Vol.1
+    - Vol.2 prompt contains character_descriptor + palette
+    - Vol.2 cover visually consistent with Vol.1
+
 ## Phase 9: Integration & Config (2–3 days)
 
 - [ ] **T-045**: Refactor: verify tất cả thresholds đọc từ `kdp-config.yaml` (không có hardcoded values trong code)
