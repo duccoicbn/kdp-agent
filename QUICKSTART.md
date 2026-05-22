@@ -8,9 +8,10 @@ Semi-auto AI system for Amazon KDP coloring book publishing (Space/Anime style).
 
 - Python 3.11+
 - [Ollama](https://ollama.ai) running locally (for metadata generation)
-- **At least one image provider** (choose one or both):
-  - [Replicate](https://replicate.com) — premium quality, ~$0.025/image
-  - [Together.ai](https://api.together.xyz) — has free tier (Flux.1-schnell-Free)
+- **Image provider** (default: Pollinations.ai — no setup, $0):
+  - [Pollinations.ai](https://pollinations.ai) — 100% free, no API key (default)
+  - [Together.ai](https://api.together.xyz) — free tier needs credit, then ~$0.003/img
+  - [Replicate](https://replicate.com) — paid only, ~$0.025/img, premium quality
 - SurrealDB running locally (for book records)
 - Google Chrome (for KDP upload step)
 
@@ -35,37 +36,41 @@ playwright install chromium
 ## 2. Configure API Keys
 
 ```powershell
-# Primary provider: Replicate (paid, premium quality)
-$env:REPLICATE_API_TOKEN = "r8_your_token_here"
+# Default provider (Pollinations) — KHÔNG cần key gì cả.
 
-# Secondary provider: Together.ai (free tier available, auto-fallback if Replicate fails)
-$env:TOGETHER_API_KEY = "your_together_key_here"
+# Optional: Together.ai (cần credit/billing)
+$env:TOGETHER_API_KEY = "tgp_v1_..."
+
+# Optional: Replicate (paid)
+$env:REPLICATE_API_TOKEN = "r8_..."
 ```
 
 ### Image Provider Selection
 
 Edit `kdp-config.yaml`:
 
-```yaml
-image_gen:
-  provider: "replicate"           # Primary: "replicate" | "together"
-  fallback_provider: "together"   # Auto-fallback on primary failure ("" to disable)
-```
-
-**Free tier mode** (no Replicate cost — slower but $0):
+**Zero-budget mode** (default — gen free 100%):
 
 ```yaml
 image_gen:
-  provider: "together"
+  provider: "pollinations"
   fallback_provider: ""
 ```
 
-**Best of both** (default — try premium first, fallback to free):
+**Pollinations + Together fallback**:
+
+```yaml
+image_gen:
+  provider: "pollinations"
+  fallback_provider: "together"
+```
+
+**Premium first, free fallback**:
 
 ```yaml
 image_gen:
   provider: "replicate"
-  fallback_provider: "together"
+  fallback_provider: "pollinations"
 ```
 
 ---

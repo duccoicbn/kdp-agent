@@ -54,8 +54,9 @@ QUICKSTART.md         # Setup guide
 
 | Provider | Type | Cost | Use case |
 |----------|------|------|----------|
-| **Replicate** | Cloud API | ~$0.025/img | Default — best quality (Flux.1-pro, SDXL) |
-| **Together.ai** | Cloud API | Free tier available | Fallback or full free-mode (FLUX.1-schnell-Free) |
+| **Pollinations.ai** | Public HTTP API | 100% FREE, no key | Default — zero-budget mode (Flux) |
+| **Together.ai** | Cloud API | Free tier (with credit) → paid ~$0.003/img | Mid-tier, faster than Pollinations |
+| **Replicate** | Cloud API | Paid ~$0.025/img | Premium quality (Flux.1-pro, SDXL) |
 
 Routing logic in `kdp_agent/agents/content/image_gen.py`:
 

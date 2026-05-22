@@ -21,8 +21,9 @@ Agent chịu trách nhiệm generate coloring book interior pages (40 trang) the
 **Provider Architecture**: Pluggable `ImageProvider` protocol cho phép thêm/đổi backend không cần sửa pipeline.
 
 **Supported providers**:
-- **Replicate** (default primary): Flux.1-pro (space) / SDXL (anime) — paid (~$0.025/image), premium quality
-- **Together.ai** (default fallback): FLUX.1-schnell-Free — free tier, lower quality but zero cost
+- **Pollinations.ai** (default): Flux via public HTTP API — 100% FREE, no key required, ideal for zero-budget mode
+- **Together.ai**: FLUX.1-schnell-Free — free tier (cần credit/billing) → paid ~$0.003/image
+- **Replicate**: Flux.1-pro (space) / SDXL (anime) — paid only (~$0.025/image), premium quality
 - **Future**: Local SD / ComfyUI / DALL-E 3 có thể plug-in qua cùng protocol
 
 **Routing rules** (configured via `kdp-config.yaml`):
@@ -31,9 +32,9 @@ Agent chịu trách nhiệm generate coloring book interior pages (40 trang) the
 3. Each provider routes model theo `style` arg: `*_model_space` vs `*_model_anime`
 
 **Configuration use cases**:
-- Premium only: `provider: replicate`, `fallback_provider: ""`
-- Free only: `provider: together`, `fallback_provider: ""`
-- Best of both (default): `provider: replicate`, `fallback_provider: together`
+- Zero-budget (default): `provider: pollinations`, `fallback_provider: ""`
+- Free + free fallback: `provider: pollinations`, `fallback_provider: together`
+- Premium first, free fallback: `provider: replicate`, `fallback_provider: pollinations`
 
 **Output normalization**: All providers return PNG bytes → unified resize/save at 300 DPI.
 

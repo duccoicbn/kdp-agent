@@ -1,4 +1,4 @@
-"""Image generation: Replicate + Together.ai (parallel providers w/ auto-fallback)."""
+"""Image generation: Replicate + Together.ai + Pollinations (pluggable providers, auto-fallback)."""
 
 from __future__ import annotations
 
@@ -7,6 +7,8 @@ import base64
 import io
 import logging
 import os
+import random
+import urllib.parse
 from pathlib import Path
 from typing import TYPE_CHECKING, Optional, Protocol
 
@@ -144,6 +146,70 @@ class TogetherProvider:
             return img_resp.content
 
 
+class PollinationsProvider:
+    """
+    Pollinations.ai client — 100% free, no API key required.
+
+    Best for: prototyping, demos, zero-budget mode.
+    Quality: Flux-based, decent but not as polished as Replicate Flux.1-pro.
+    Speed: ~30-90 seconds per image (no priority queue without key).
+
+    Optional auth: set POLLINATIONS_TOKEN env var to bypass throttling / use private mode.
+    """
+
+    name = "pollinations"
+    BASE_URL = "https://image.pollinations.ai/prompt"
+
+    def __init__(self, cfg: "ImageGenConfig", gen_cfg: "GenerationConfig") -> None:
+        self._cfg = cfg
+        self._gen_cfg = gen_cfg
+
+    def _model(self, style: str) -> str:
+        if style == "anime":
+            return self._cfg.pollinations_model_anime
+        return self._cfg.pollinations_model_space
+
+    async def generate(
+        self,
+        prompt: str,
+        negative_prompt: str,
+        style: str,
+        seed: Optional[int],
+    ) -> bytes:
+        full_prompt = prompt
+        if negative_prompt:
+            full_prompt = f"{prompt}. AVOID: {negative_prompt}"
+
+        actual_seed = seed if seed is not None else random.randint(1, 999_999_999)
+
+        params = {
+            "width": self._gen_cfg.image_size,
+            "height": self._gen_cfg.image_size,
+            "model": self._model(style),
+            "seed": actual_seed,
+            "nologo": "true",
+            "private": "true",
+            "enhance": "true",
+        }
+
+        token = os.environ.get("POLLINATIONS_TOKEN", "").strip()
+        if token:
+            params["token"] = token
+
+        encoded_prompt = urllib.parse.quote(full_prompt, safe="")
+        url = f"{self.BASE_URL}/{encoded_prompt}?{urllib.parse.urlencode(params)}"
+
+        async with httpx.AsyncClient(timeout=180) as client:
+            resp = await client.get(url)
+            resp.raise_for_status()
+            content_type = resp.headers.get("content-type", "")
+            if not content_type.startswith("image/"):
+                raise RuntimeError(
+                    f"Pollinations returned non-image content-type: {content_type}"
+                )
+            return resp.content
+
+
 class ImageGenerator:
     """
     Unified image gen facade.
@@ -157,6 +223,7 @@ class ImageGenerator:
     _PROVIDERS = {
         "replicate": ReplicateProvider,
         "together": TogetherProvider,
+        "pollinations": PollinationsProvider,
     }
 
     def __init__(self, config: "KdpConfig") -> None:

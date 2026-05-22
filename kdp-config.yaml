@@ -24,17 +24,25 @@ generation:
   max_gen_retries: 3           # Max retries if quality check fails
 
 image_gen:
-  provider: "replicate"        # "replicate" | "together" | "dalle3"
-  fallback_provider: "together"  # "" | "replicate" | "together" — auto-retry on primary failure
+  # Provider chain:
+  #   - "pollinations" — 100% FREE, no API key, Flux-based (default)
+  #   - "together"     — free tier (needs credit / billing), then paid ~$0.003/img
+  #   - "replicate"    — paid only ~$0.025/img, best quality
+  provider: "pollinations"
+  fallback_provider: ""   # set to "together" or "replicate" to auto-retry on primary failure
 
   replicate_model_space: "black-forest-labs/flux-1.1-pro"
   replicate_model_anime: "stability-ai/sdxl:39ed52f2319f9c703d0379b668aed8521d0e4b2a6893e06f21ee07a56b9ee64f"
 
   together_model_space: "black-forest-labs/FLUX.1-schnell-Free"
   together_model_anime: "black-forest-labs/FLUX.1-schnell-Free"
-  together_steps: 4              # FLUX.1-schnell-Free supports max 4 steps
+  together_steps: 4
 
-  ip_similarity_threshold: 0.75  # CLIP cosine similarity threshold for IP check
+  # Pollinations.ai models: "flux" | "flux-realism" | "flux-anime" | "flux-3d" | "turbo"
+  pollinations_model_space: "flux"
+  pollinations_model_anime: "flux-anime"
+
+  ip_similarity_threshold: 0.75
   negative_prompts_baseline: >
     known anime characters, naruto, goku, luffy, pikachu, existing IP,
     copyrighted characters, watermark, logo, text, brand names,
