@@ -19,6 +19,7 @@ def _load_commands() -> None:
         monitor,
         publish,
         research,
+        series,
         setup,
     )
 
@@ -29,6 +30,7 @@ def _load_commands() -> None:
     app.add_typer(dashboard.app, name="dashboard", help="Start the review dashboard.")
     app.add_typer(publish.app, name="publish", help="Upload approved book to KDP via Playwright.")
     app.add_typer(research.app, name="research", help="Run niche keyword research.")
+    app.add_typer(series.app, name="series", help="Manage multi-volume book series.")
     app.add_typer(monitor.app, name="monitor", help="Monitor live books BSR and approval status.")
     app.add_typer(marketing.app, name="marketing", help="Generate promotional images and video.")
 

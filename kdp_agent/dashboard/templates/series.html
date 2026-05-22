@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Series: {{ series.name }}</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0f1117; color: #e2e8f0; }
+    .header { background: #1a1d2e; border-bottom: 1px solid #2d3748; padding: 14px 24px; display: flex; align-items: center; gap: 16px; }
+    .back { color: #7c3aed; text-decoration: none; font-size: 0.9rem; }
+    .title { font-weight: 700; font-size: 1.1rem; }
+    .container { max-width: 1200px; margin: 0 auto; padding: 24px; display: grid; grid-template-columns: 1fr 360px; gap: 24px; }
+    .section { background: #1a1d2e; border: 1px solid #2d3748; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+    .section-title { font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.06em; color: #64748b; margin-bottom: 14px; font-weight: 600; }
+    .meta { color: #94a3b8; font-size: 0.9rem; margin-top: 4px; }
+    .badge { display: inline-block; padding: 3px 10px; border-radius: 999px; background: #1e293b; color: #94a3b8; font-size: 0.75rem; font-weight: 600; }
+    .palette { display: flex; gap: 8px; flex-wrap: wrap; }
+    .swatch { width: 42px; height: 42px; border-radius: 8px; border: 1px solid #334155; }
+    .refs { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
+    .refs img { width: 100%; background: white; border-radius: 6px; border: 1px solid #334155; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { padding: 10px; border-bottom: 1px solid #2d3748; text-align: left; font-size: 0.86rem; }
+    th { color: #94a3b8; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; }
+    a { color: #a78bfa; text-decoration: none; }
+    .empty { color: #64748b; padding: 18px 0; }
+    .field { margin-bottom: 12px; }
+    .field label { display: block; font-size: 0.78rem; color: #94a3b8; margin-bottom: 5px; }
+    .field input { width: 100%; background: #0f1117; border: 1px solid #2d3748; color: #e2e8f0; border-radius: 8px; padding: 8px 10px; }
+    .btn { width: 100%; padding: 10px 14px; border-radius: 8px; font-weight: 700; border: none; cursor: pointer; background: #7c3aed; color: white; }
+    .btn:hover { background: #6d28d9; }
+    .msg { margin-top: 10px; font-size: 0.82rem; color: #94a3b8; }
+    @media (max-width: 900px) { .container { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <a class="back" href="/">← Back</a>
+    <span class="title">{{ series.name }}</span>
+    <span class="badge">{{ series.status.value }}</span>
+  </div>
+
+  <div class="container">
+    <main>
+      <div class="section">
+        <div class="section-title">Volumes</div>
+        {% if volumes %}
+        <table>
+          <thead>
+            <tr>
+              <th>Vol</th>
+              <th>Book</th>
+              <th>Theme</th>
+              <th>Status</th>
+              <th>ASIN</th>
+              <th>BSR</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for book in volumes %}
+            <tr>
+              <td>{{ book.volume_number }}</td>
+              <td><a href="/book/{{ book.id }}">{{ book.metadata.title or book.id }}</a></td>
+              <td>{{ book.theme }}</td>
+              <td><span class="badge">{{ book.status.value }}</span></td>
+              <td>{{ book.kdp.asin or "-" }}</td>
+              <td>{{ book.kdp.bsr or "-" }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        {% else %}
+        <div class="empty">No volumes yet. Use <code>kdp-agent series add-volume "{{ series.name }}" --theme ...</code></div>
+        {% endif %}
+      </div>
+
+      <div class="section">
+        <div class="section-title">Reference Images</div>
+        {% if ref_images %}
+        <div class="refs">
+          {% for img in ref_images %}
+          <img src="{{ img }}" alt="Reference">
+          {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty">No reference images captured yet.</div>
+        {% endif %}
+      </div>
+    </main>
+
+    <aside>
+      <div class="section">
+        <div class="section-title">Series Info</div>
+        <div><strong>Brand:</strong> {{ series.brand or "-" }}</div>
+        <div class="meta"><strong>Author:</strong> {{ series.author }}</div>
+        <div class="meta"><strong>Style:</strong> {{ series.style }}</div>
+        <div class="meta"><strong>Volumes:</strong> {{ series.volume_count }}</div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">Style DNA</div>
+        {% if series.style_dna.is_frozen %}
+        <p class="meta">{{ series.style_dna.character_descriptor }}</p>
+        <br>
+        <div class="palette">
+          {% for color in series.style_dna.palette %}
+          <div class="swatch" title="{{ color }}" style="background: {{ color }}"></div>
+          {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty">DNA not frozen. Run <code>series freeze-dna</code> from an approved Vol.1.</div>
+        {% endif %}
+      </div>
+
+      <div class="section">
+        <div class="section-title">Add Volume</div>
+        {% if series.style_dna.is_frozen %}
+        <form id="addVolumeForm">
+          <div class="field">
+            <label>Theme</label>
+            <input name="theme" placeholder="black holes, cosmic castles..." required>
+          </div>
+          <div class="field">
+            <label>Sub-theme (optional)</label>
+            <input name="sub_theme" placeholder="beginner, cute, detailed...">
+          </div>
+          <div class="field">
+            <label>Pages</label>
+            <input name="pages" type="number" min="1" value="40">
+          </div>
+          <button class="btn" type="submit">Create Next Volume</button>
+          <div id="addVolumeMsg" class="msg"></div>
+        </form>
+        {% else %}
+        <div class="empty">Freeze Style DNA before adding Vol.2+.</div>
+        {% endif %}
+      </div>
+    </aside>
+  </div>
+  <script>
+    const form = document.getElementById('addVolumeForm');
+    if (form) {
+      form.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        const msg = document.getElementById('addVolumeMsg');
+        const data = new FormData(form);
+        msg.textContent = 'Creating volume...';
+        const res = await fetch('/series/{{ series.name }}/add-volume', {
+          method: 'POST',
+          body: data,
+        });
+        const json = await res.json();
+        if (!res.ok) {
+          msg.textContent = json.detail || 'Failed to create volume';
+          return;
+        }
+        msg.textContent = `Created Vol.${json.volume_number}: ${json.book_id}`;
+        window.location.reload();
+      });
+    }
+  </script>
+</body>
+</html>

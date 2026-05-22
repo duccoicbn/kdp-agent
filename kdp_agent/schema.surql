@@ -39,6 +39,12 @@ DEFINE FIELD kdp.approval_status   ON kdp_book TYPE string   DEFAULT "";
 -- Page generation seeds (for reproducibility)
 DEFINE FIELD page_seeds ON kdp_book TYPE array DEFAULT [];
 
+-- Series linkage (optional; standalone books keep defaults)
+DEFINE FIELD series_id         ON kdp_book TYPE string DEFAULT "";
+DEFINE FIELD volume_number     ON kdp_book TYPE int    DEFAULT 0;
+DEFINE FIELD relationship_type ON kdp_book TYPE string DEFAULT "standalone"
+    ASSERT $value IN ["standalone","volume","anthology_entry"];
+
 -- Publisher agent progress state
 DEFINE FIELD publish_state ON kdp_book TYPE object DEFAULT {};
 
@@ -50,6 +56,7 @@ DEFINE FIELD updated_at ON kdp_book TYPE datetime DEFAULT time::now();
 DEFINE INDEX idx_status  ON kdp_book FIELDS status;
 DEFINE INDEX idx_niche   ON kdp_book FIELDS niche;
 DEFINE INDEX idx_created ON kdp_book FIELDS created_at;
+DEFINE INDEX idx_series_volume ON kdp_book FIELDS series_id, volume_number;
 
 -- Niche opportunity table
 DEFINE TABLE kdp_niche SCHEMAFULL;
@@ -60,3 +67,35 @@ DEFINE FIELD trend_score     ON kdp_niche TYPE float  DEFAULT 0.0;
 DEFINE FIELD opportunity_score ON kdp_niche TYPE float DEFAULT 0.0;
 DEFINE FIELD discovered_at   ON kdp_niche TYPE datetime DEFAULT time::now();
 DEFINE INDEX idx_opportunity ON kdp_niche FIELDS opportunity_score;
+
+-- Multi-volume series table
+DEFINE TABLE kdp_series SCHEMAFULL;
+
+DEFINE FIELD id     ON kdp_series TYPE string;
+DEFINE FIELD name   ON kdp_series TYPE string;
+DEFINE FIELD brand  ON kdp_series TYPE string DEFAULT "";
+DEFINE FIELD author ON kdp_series TYPE string DEFAULT "KDP Agent";
+DEFINE FIELD style  ON kdp_series TYPE string ASSERT $value IN ["space","anime","mandala","other"];
+DEFINE FIELD status ON kdp_series TYPE string DEFAULT "active"
+    ASSERT $value IN ["active","completed","archived"];
+
+-- Style DNA captured from a successful Vol.1 and reused by future volumes.
+DEFINE FIELD style_dna ON kdp_series TYPE object DEFAULT {};
+DEFINE FIELD style_dna.prompt_template       ON kdp_series TYPE string DEFAULT "";
+DEFINE FIELD style_dna.negative_prompt       ON kdp_series TYPE string DEFAULT "";
+DEFINE FIELD style_dna.palette               ON kdp_series TYPE array  DEFAULT [];
+DEFINE FIELD style_dna.character_descriptor  ON kdp_series TYPE string DEFAULT "";
+DEFINE FIELD style_dna.reference_image_paths ON kdp_series TYPE array  DEFAULT [];
+DEFINE FIELD style_dna.captured_at           ON kdp_series TYPE datetime ASSERT $value = NONE OR $value != NONE;
+DEFINE FIELD style_dna.captured_from_book_id ON kdp_series TYPE string DEFAULT "";
+
+-- Cross-volume dedup state.
+DEFINE FIELD used_seeds   ON kdp_series TYPE array DEFAULT [];
+DEFINE FIELD used_prompts ON kdp_series TYPE array DEFAULT [];
+
+DEFINE FIELD volume_count ON kdp_series TYPE int DEFAULT 0;
+DEFINE FIELD created_at   ON kdp_series TYPE datetime DEFAULT time::now();
+DEFINE FIELD updated_at   ON kdp_series TYPE datetime DEFAULT time::now();
+
+DEFINE INDEX idx_series_name  ON kdp_series FIELDS name UNIQUE;
+DEFINE INDEX idx_series_brand ON kdp_series FIELDS brand;

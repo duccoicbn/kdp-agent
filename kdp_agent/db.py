@@ -22,6 +22,18 @@ class BookStatus(str, Enum):
     REJECTED = "rejected"
 
 
+class SeriesStatus(str, Enum):
+    ACTIVE = "active"
+    COMPLETED = "completed"
+    ARCHIVED = "archived"
+
+
+class RelationshipType(str, Enum):
+    STANDALONE = "standalone"
+    VOLUME = "volume"
+    ANTHOLOGY_ENTRY = "anthology_entry"
+
+
 class BookMetadata(BaseModel):
     title: str = ""
     subtitle: str = ""
@@ -46,6 +58,50 @@ class BookKdp(BaseModel):
     approval_status: str = ""
 
 
+class StyleDna(BaseModel):
+    prompt_template: str = ""
+    negative_prompt: str = ""
+    palette: list[str] = Field(default_factory=list)
+    character_descriptor: str = ""
+    reference_image_paths: list[str] = Field(default_factory=list)
+    captured_at: Optional[datetime] = None
+    captured_from_book_id: str = ""
+
+    @property
+    def is_frozen(self) -> bool:
+        """A DNA profile is usable once it has at least style text or references."""
+        return bool(
+            self.character_descriptor
+            or self.prompt_template
+            or self.reference_image_paths
+        )
+
+
+class PromptFingerprint(BaseModel):
+    hash: str
+    theme: str
+    sub_theme: str = ""
+    volume_number: int = 0
+    book_id: str = ""
+    forced: bool = False
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+
+
+class KdpSeries(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    name: str
+    brand: str = ""
+    author: str = "KDP Agent"
+    style: str = "anime"
+    status: SeriesStatus = SeriesStatus.ACTIVE
+    style_dna: StyleDna = Field(default_factory=StyleDna)
+    used_seeds: list[int] = Field(default_factory=list)
+    used_prompts: list[PromptFingerprint] = Field(default_factory=list)
+    volume_count: int = 0
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+    updated_at: datetime = Field(default_factory=datetime.utcnow)
+
+
 class KdpBook(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     niche: str
@@ -58,6 +114,9 @@ class KdpBook(BaseModel):
     files: BookFiles = Field(default_factory=BookFiles)
     kdp: BookKdp = Field(default_factory=BookKdp)
     page_seeds: list[int] = Field(default_factory=list)
+    series_id: str = ""
+    volume_number: int = 0
+    relationship_type: RelationshipType = RelationshipType.STANDALONE
     publish_state: dict[str, Any] = Field(default_factory=dict)
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)
@@ -126,6 +185,59 @@ class KdpDb:
             "UPDATE kdp_book SET status = $status, updated_at = time::now() WHERE id = $id",
             {"status": status.value, "id": book_id},
         )
+
+    async def create_series(self, series: KdpSeries) -> KdpSeries:
+        data = series.model_dump(mode="json")
+        await self._client.create("kdp_series", data)
+        return series
+
+    async def get_series(self, name_or_id: str) -> Optional[KdpSeries]:
+        results = await self._client.query(
+            "SELECT * FROM kdp_series WHERE id = $value OR name = $value LIMIT 1",
+            {"value": name_or_id},
+        )
+        rows = results[0] if results else []
+        if not rows:
+            return None
+        return KdpSeries(**rows[0])
+
+    async def list_series(
+        self,
+        brand: str = "",
+        status: Optional[SeriesStatus] = None,
+    ) -> list[KdpSeries]:
+        clauses = []
+        params: dict[str, Any] = {}
+        if brand:
+            clauses.append("brand = $brand")
+            params["brand"] = brand
+        if status:
+            clauses.append("status = $status")
+            params["status"] = status.value
+
+        where = f" WHERE {' AND '.join(clauses)}" if clauses else ""
+        results = await self._client.query(
+            f"SELECT * FROM kdp_series{where} ORDER BY created_at DESC",
+            params,
+        )
+        rows = results[0] if results else []
+        return [KdpSeries(**row) for row in rows]
+
+    async def update_series(self, series: KdpSeries) -> None:
+        series.updated_at = datetime.utcnow()
+        data = series.model_dump(mode="json")
+        await self._client.query(
+            "UPDATE kdp_series SET $data WHERE id = $id",
+            {"data": data, "id": series.id},
+        )
+
+    async def list_series_volumes(self, series_id: str) -> list[KdpBook]:
+        results = await self._client.query(
+            "SELECT * FROM kdp_book WHERE series_id = $series_id ORDER BY volume_number ASC",
+            {"series_id": series_id},
+        )
+        rows = results[0] if results else []
+        return [KdpBook(**row) for row in rows]
 
 
 _db: Optional[KdpDb] = None

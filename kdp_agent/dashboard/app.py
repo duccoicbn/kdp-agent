@@ -7,7 +7,7 @@ from pathlib import Path
 from typing import Any, Optional
 
 import httpx
-from fastapi import FastAPI, HTTPException, Request
+from fastapi import FastAPI, Form, HTTPException, Request
 from fastapi.responses import FileResponse, HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
@@ -50,6 +50,81 @@ async def index(request: Request) -> HTMLResponse:
     return templates.TemplateResponse(
         "index.html",
         {"request": request, "books": books, "status_counts": status_counts},
+    )
+
+
+@app.get("/series/{name}", response_class=HTMLResponse)
+async def series_detail(request: Request, name: str) -> HTMLResponse:
+    from kdp_agent.agents.series.series_repo import SeriesRepository
+
+    db = get_db()
+    repo = SeriesRepository(db)
+    series = await repo.get_required(name)
+    volumes = await repo.list_volumes(series)
+
+    ref_images: list[str] = []
+    for path_str in series.style_dna.reference_image_paths:
+        path = Path(path_str)
+        try:
+            rel = path.relative_to(_ROOT / "output")
+            ref_images.append(f"/output/{rel.as_posix()}")
+        except ValueError:
+            ref_images.append(path_str)
+
+    return templates.TemplateResponse(
+        "series.html",
+        {
+            "request": request,
+            "series": series,
+            "volumes": volumes,
+            "ref_images": ref_images,
+        },
+    )
+
+
+@app.post("/series/{name}/add-volume")
+async def series_add_volume(
+    name: str,
+    theme: str = Form(...),
+    sub_theme: str = Form(""),
+    pages: int = Form(40),
+) -> JSONResponse:
+    from kdp_agent.agents.series.dedup import check_theme_collision
+    from kdp_agent.agents.series.series_repo import SeriesRepository
+    from kdp_agent.db import KdpBook, RelationshipType
+
+    db = get_db()
+    repo = SeriesRepository(db)
+    series = await repo.get_required(name)
+    await repo.ensure_dna_ready(series)
+
+    collision = check_theme_collision(series, theme, sub_theme)
+    if collision:
+        raise HTTPException(
+            status_code=409,
+            detail=f"Theme already used in volume {collision.volume_number}",
+        )
+
+    volume_number = await repo.next_volume_number(series)
+    book = KdpBook(
+        niche=series.brand or series.name,
+        theme=theme,
+        style=series.style,
+        series_id=series.id,
+        volume_number=volume_number,
+        relationship_type=RelationshipType.VOLUME,
+    )
+    await db.create_book(book)
+    await repo.commit_dedup_record(
+        series=series,
+        seeds=[],
+        theme=theme,
+        sub_theme=sub_theme,
+        volume_number=volume_number,
+        book_id=book.id,
+    )
+    return JSONResponse(
+        {"status": "created", "book_id": book.id, "volume_number": volume_number}
     )
 
 
